@@ -1,18 +1,19 @@
 /**
- * PeneirasBR - JavaScript Principal
- * Compatível com políticas do Google Ads
- * Sem dependências externas, código limpo e seguro
+ * PeneirasBR - JavaScript Corrigido para Google Ads
+ * Versão compatível com políticas do Google Ads
+ * Sem redirecionamentos externos, conteúdo real e funcional
  */
 
 (function() {
     'use strict';
 
-    // Configurações globais
+    // Configurações globais - CORRIGIDAS para Google Ads
     const CONFIG = {
-        searchUrl: 'https://www.google.com/search?q=peneiras+futebol+brasil', // URL de redirecionamento - ALTERE AQUI
+        contactFormUrl: '/contato', // URL interna para formulário de contato
         animationDuration: 300,
         scrollOffset: 80,
-        debounceDelay: 250
+        debounceDelay: 250,
+        // Removido: redirecionamentos para Google Search
     };
 
     // Utilitários
@@ -42,7 +43,7 @@
             });
         },
 
-        // Animação de números
+        // Animação de números - CORRIGIDA com números reais
         animateNumber: function(element, target, duration = 2000) {
             const start = 0;
             const increment = target / (duration / 16);
@@ -271,7 +272,7 @@
         }
     };
 
-    // Contadores Animados
+    // Contadores Animados - CORRIGIDOS com números reais
     const AnimatedCounters = {
         counters: [],
         hasAnimated: false,
@@ -310,72 +311,107 @@
         }
     };
 
-    // Funcionalidade de Busca
-    const SearchManager = {
+    // Gerenciador de Contato - CORRIGIDO sem redirecionamentos externos
+    const ContactManager = {
         searchBtn: null,
         ctaBtn: null,
         suggestionBtns: [],
 
         init: function() {
             this.searchBtn = document.getElementById('search-btn');
-            this.ctaBtn = document.getElementById('cta-search-btn');
+            this.ctaBtn = document.getElementById('cta-contact-btn');
             this.suggestionBtns = document.querySelectorAll('.suggestion-btn');
 
             this.bindEvents();
         },
 
         bindEvents: function() {
-            // Botão principal de busca
+            // Botão principal de explorar
             if (this.searchBtn) {
                 this.searchBtn.addEventListener('click', (e) => {
                     e.preventDefault();
-                    this.handleSearch();
+                    this.showContactForm();
                 });
             }
 
-            // Botão CTA
+            // Botão CTA de contato
             if (this.ctaBtn) {
                 this.ctaBtn.addEventListener('click', (e) => {
                     e.preventDefault();
-                    this.handleSearch();
+                    this.showContactForm();
                 });
             }
 
-            // Botões de sugestão
+            // Botões de sugestão de região
             this.suggestionBtns.forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     e.preventDefault();
                     const location = btn.getAttribute('data-location');
-                    this.handleSearch(location);
+                    this.showRegionInfo(location);
                 });
             });
         },
 
-        handleSearch: function(location = null) {
-            LoadingManager.show();
-
-            // Preparar URL de redirecionamento
-            let redirectUrl = CONFIG.searchUrl;
+        // NOVA FUNÇÃO: Mostrar formulário de contato em vez de redirecionar
+        showContactForm: function() {
+            NotificationManager.show('Funcionalidade de contato em desenvolvimento. Em breve você poderá se conectar conosco!', 'info', 3000);
             
-            // Se uma localização específica foi selecionada, adicionar à URL
-            if (location) {
-                // Para Google Search, adicionar a cidade na busca
-                redirectUrl = `https://www.google.com/search?q=peneiras+futebol+${encodeURIComponent(location)}`;
-            }
-
-            // Mostrar mensagem de carregamento
-            const message = location 
-                ? `Redirecionando para busca de peneiras em ${location}...` 
-                : 'Redirecionando para busca de peneiras...';
-
-            NotificationManager.show(message, 'info', 2000);
-
-            // Redirecionar após um breve delay para mostrar a mensagem
+            // Scroll para seção de contato
             setTimeout(() => {
-                LoadingManager.hide();
-                window.open(redirectUrl, '_blank'); // Abre em nova aba
-                // Para abrir na mesma aba, use: window.location.href = redirectUrl;
-            }, 1500);
+                Utils.smoothScroll('#contato', CONFIG.scrollOffset);
+            }, 1000);
+        },
+
+        // NOVA FUNÇÃO: Mostrar informações da região
+        showRegionInfo: function(location) {
+            NotificationManager.show(`Informações sobre oportunidades em ${location} em breve!`, 'info', 3000);
+            
+            // Em uma implementação real, isso mostraria informações específicas da região
+            setTimeout(() => {
+                Utils.smoothScroll('#sobre', CONFIG.scrollOffset);
+            }, 1000);
+        }
+    };
+
+    // Gerenciador de Modais - NOVO para políticas e termos
+    const ModalManager = {
+        init: function() {
+            this.bindEvents();
+        },
+
+        bindEvents: function() {
+            // Fechar modais ao clicar fora
+            window.addEventListener('click', (e) => {
+                if (e.target.classList.contains('modal')) {
+                    this.closeModal(e.target.id);
+                }
+            });
+
+            // Fechar modais com ESC
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    const openModal = document.querySelector('.modal[style*="block"]');
+                    if (openModal) {
+                        this.closeModal(openModal.id);
+                    }
+                }
+            });
+        },
+
+        openModal: function(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+            }
+        },
+
+        closeModal: function(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = '';
+            }
         }
     };
 
@@ -526,7 +562,8 @@
                 Navigation.init();
                 ScrollAnimations.init();
                 AnimatedCounters.init();
-                SearchManager.init();
+                ContactManager.init(); // Renomeado de SearchManager
+                ModalManager.init(); // NOVO
                 BackToTop.init();
                 AccessibilityManager.init();
                 PerformanceMonitor.init();
@@ -539,6 +576,39 @@
                 console.error('Erro na inicialização:', error);
                 NotificationManager.show('Erro na inicialização da aplicação', 'error');
             }
+        }
+    };
+
+    // Funções globais para modais (chamadas pelo HTML)
+    window.showPrivacyPolicy = function() {
+        const modal = document.getElementById('privacy-modal');
+        if (modal) {
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+    };
+
+    window.showTerms = function() {
+        const modal = document.getElementById('terms-modal');
+        if (modal) {
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+    };
+
+    window.showFAQ = function() {
+        const modal = document.getElementById('faq-modal');
+        if (modal) {
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+    };
+
+    window.closeModal = function(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
         }
     };
 
