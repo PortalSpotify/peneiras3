@@ -9,7 +9,7 @@
 
     // Configurações globais
     const CONFIG = {
-        searchUrl: '/buscar-peneiras', // URL interna em vez de externa
+        searchUrl: 'https://www.google.com/search?q=peneiras+futebol+brasil', // URL de redirecionamento - ALTERE AQUI
         animationDuration: 300,
         scrollOffset: 80,
         debounceDelay: 250
@@ -354,25 +354,28 @@
         handleSearch: function(location = null) {
             LoadingManager.show();
 
-            // Simular busca (em produção, seria uma requisição real)
+            // Preparar URL de redirecionamento
+            let redirectUrl = CONFIG.searchUrl;
+            
+            // Se uma localização específica foi selecionada, adicionar à URL
+            if (location) {
+                // Para Google Search, adicionar a cidade na busca
+                redirectUrl = `https://www.google.com/search?q=peneiras+futebol+${encodeURIComponent(location)}`;
+            }
+
+            // Mostrar mensagem de carregamento
+            const message = location 
+                ? `Redirecionando para busca de peneiras em ${location}...` 
+                : 'Redirecionando para busca de peneiras...';
+
+            NotificationManager.show(message, 'info', 2000);
+
+            // Redirecionar após um breve delay para mostrar a mensagem
             setTimeout(() => {
                 LoadingManager.hide();
-                
-                const searchQuery = location ? `?cidade=${encodeURIComponent(location)}` : '';
-                const message = location 
-                    ? `Buscando peneiras em ${location}...` 
-                    : 'Buscando peneiras próximas a você...';
-
-                NotificationManager.show(message, 'info');
-
-                // Em produção, redirecionaria para a página de resultados
-                // window.location.href = CONFIG.searchUrl + searchQuery;
-                
-                // Para demonstração, apenas mostra mensagem
-                setTimeout(() => {
-                    NotificationManager.show('Funcionalidade em desenvolvimento. Em breve você poderá buscar peneiras reais!', 'warning');
-                }, 1500);
-            }, 1000);
+                window.open(redirectUrl, '_blank'); // Abre em nova aba
+                // Para abrir na mesma aba, use: window.location.href = redirectUrl;
+            }, 1500);
         }
     };
 
@@ -552,4 +555,3 @@
     }
 
 })();
-
